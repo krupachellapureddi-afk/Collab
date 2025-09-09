@@ -1,160 +1,505 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Digital Marketing Dashboard</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VFX Animation Dashboard</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    :root{
+      --bg1: #050816;
+      --bg2: #0b1020;
+      --card: rgba(255,255,255,0.04);
+      --accent: #7c3aed;
+      --glass: rgba(255,255,255,0.06);
+      --text: #e6eef8;
     }
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #f3f4f6, #ffffff);
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: linear-gradient(180deg,var(--bg1),var(--bg2));
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow:hidden;
+      display:flex;
+      align-items:stretch;
+      gap:20px;
+      padding:20px;
     }
-    header {
-      background: #2563eb;
-      color: white;
-      width: 100%;
-      padding: 1rem;
-      text-align: center;
-      font-size: 1.5rem;
-      font-weight: bold;
+
+    /* Left: Controls */
+    .panel{
+      width:360px;
+      background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:14px;
+      padding:18px;
+      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+      border:1px solid rgba(255,255,255,0.03);
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      backdrop-filter: blur(6px) saturate(120%);
     }
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      width: 90%;
-      margin: 20px auto;
+    .panel h1{font-size:20px;margin-bottom:6px}
+    .panel p{font-size:13px; color:#bcd2ff}
+
+    .control{background:var(--card);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+    .control label{display:block;font-size:13px;color:#cfe1ff;margin-bottom:8px}
+    .row{display:flex;align-items:center;gap:8px}
+    .small{font-size:12px;color:#aacbff}
+
+    input[type=range]{width:100%}
+    input[type=color]{height:34px;width:56px;border-radius:6px;border:0;padding:0}
+    button{background:var(--accent);color:white;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
+    .toggle{display:inline-flex;align-items:center;gap:8px}
+    .stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+    .stat{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:10px;border-radius:8px;text-align:center}
+    .stat strong{display:block;font-size:18px}
+
+    /* Right: Canvas area */
+    .viewport{flex:1;position:relative;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.02);box-shadow:0 12px 40px rgba(2,6,23,0.6)}
+    canvas{position:absolute;left:0;top:0;width:100%;height:100%;display:block}
+
+    /* Bottom overlay controls */
+    .overlay{
+      position:absolute;left:18px;bottom:18px;display:flex;gap:8px;align-items:center
     }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      text-align: center;
-      cursor: pointer;
-    }
-    .card:hover {
-      transform: translateY(-8px) scale(1.03);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
-    canvas {
-      background: #eef6ff;
-      border-radius: 15px;
-      display: block;
-      margin: 20px auto;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    footer {
-      background: #2563eb;
-      color: white;
-      text-align: center;
-      width: 100%;
-      padding: 10px;
-      margin-top: auto;
-      font-size: 0.9rem;
+    .chip{background:var(--glass);padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,0.03);font-size:13px}
+
+    /* small helper */
+    .hint{font-size:12px;color:#9fb9ff}
+
+    @media (max-width:900px){
+      body{flex-direction:column;padding:12px}
+      .panel{width:100%}
+      .viewport{width:100%;height:60vh}
     }
   </style>
 </head>
 <body>
-  <header>Digital Marketing Dashboard</header>
+  <div class="panel" id="ui">
+    <h1>VFX Animation Dashboard</h1>
+    <p>Interactive VFX playground with particle systems, glow, trails and mouse interaction. All in single file (HTML/CSS/JS).</p>
 
-  <section class="dashboard">
-    <div class="card" onclick="showDetails('Traffic Sources: Organic, Paid, Social')">📊 Traffic: 45K Visitors</div>
-    <div class="card" onclick="showDetails('Conversions: Leads and Purchases')">💼 Conversions: 1.2K</div>
-    <div class="card" onclick="showDetails('Ad Campaign Performance')">📢 Ads: $8K Spent</div>
-    <div class="card" onclick="showDetails('Social Media Engagement Rates')">👍 Social: 3.5K Likes</div>
-  </section>
+    <div class="control">
+      <label>Particle Count: <span id="countLabel">120</span></label>
+      <input id="count" type="range" min="10" max="600" value="120">
+    </div>
 
-  <canvas id="chartCanvas" width="800" height="400"></canvas>
+    <div class="control">
+      <label>Speed: <span id="speedLabel">1.0</span></label>
+      <input id="speed" type="range" min="0" max="3" step="0.05" value="1">
+    </div>
 
-  <footer>© 2025 Digital Marketing Dashboard</footer>
+    <div class="control">
+      <label>Particle Size: <span id="sizeLabel">3.2</span></label>
+      <input id="size" type="range" min="1" max="12" step="0.1" value="3.2">
+    </div>
+
+    <div class="control">
+      <label>Glow Intensity: <span id="glowLabel">0.6</span></label>
+      <input id="glow" type="range" min="0" max="1.8" step="0.01" value="0.6">
+    </div>
+
+    <div class="control">
+      <label>Color Theme</label>
+      <div class="row">
+        <input id="color0" type="color" value="#7c3aed">
+        <input id="color1" type="color" value="#06b6d4">
+        <input id="color2" type="color" value="#f97316">
+        <div style="flex:1"></div>
+        <button id="preset">Randomize</button>
+      </div>
+    </div>
+
+    <div class="control row" style="justify-content:space-between;align-items:center">
+      <div class="toggle">
+        <input id="attract" type="checkbox" checked> <label class="small">Mouse Attract</label>
+      </div>
+      <div class="toggle">
+        <input id="trails" type="checkbox" checked> <label class="small">Trails</label>
+      </div>
+      <div class="toggle">
+        <input id="additive" type="checkbox" checked> <label class="small">Additive Blend</label>
+      </div>
+    </div>
+
+    <div class="control">
+      <label>Quick Actions</label>
+      <div class="row">
+        <button id="burst">Burst</button>
+        <button id="clear">Clear</button>
+        <button id="pause">Pause</button>
+      </div>
+    </div>
+
+    <div class="control">
+      <label>Stats</label>
+      <div class="stat-grid">
+        <div class="stat"><small>Particles</small><strong id="statCount">0</strong></div>
+        <div class="stat"><small>FPS</small><strong id="statFPS">0</strong></div>
+        <div class="stat"><small>Mouse X</small><strong id="statX">0</strong></div>
+        <div class="stat"><small>Mouse Y</small><strong id="statY">0</strong></div>
+      </div>
+    </div>
+
+    <div style="flex:1"></div>
+    <div class="hint">Tip: Click / drag inside the viewport to spawn particles. Use Burst for big VFX pops.</div>
+  </div>
+
+  <div class="viewport" id="view">
+    <!-- multiple canvases layered for effects -->
+    <canvas id="c_trails"></canvas>
+    <canvas id="c_main"></canvas>
+    <canvas id="c_glow"></canvas>
+
+    <div class="overlay">
+      <div class="chip" id="modeChip">Mode: <strong style="margin-left:8px" id="modeText">Live</strong></div>
+      <div class="chip">Particles: <strong id="chipCount">0</strong></div>
+    </div>
+  </div>
 
   <script>
-    // Show details popup
-    function showDetails(message) {
-      alert(message);
-    }
+    // Grab elements
+    const cTrails = document.getElementById('c_trails');
+    const cMain = document.getElementById('c_main');
+    const cGlow = document.getElementById('c_glow');
+    const view = document.getElementById('view');
 
-    const canvas = document.getElementById('chartCanvas');
-    const ctx = canvas.getContext('2d');
+    const ctxTrails = cTrails.getContext('2d');
+    const ctxMain = cMain.getContext('2d');
+    const ctxGlow = cGlow.getContext('2d');
 
-    const data = [45, 30, 20, 15];
-    const labels = ['Organic', 'Paid Ads', 'Social', 'Referral'];
-    const colors = ['#3b82f6', '#f97316', '#10b981', '#eab308'];
+    // UI
+    const ui = {
+      count: document.getElementById('count'),
+      speed: document.getElementById('speed'),
+      size: document.getElementById('size'),
+      glow: document.getElementById('glow'),
+      color0: document.getElementById('color0'),
+      color1: document.getElementById('color1'),
+      color2: document.getElementById('color2'),
+      preset: document.getElementById('preset'),
+      attract: document.getElementById('attract'),
+      trails: document.getElementById('trails'),
+      additive: document.getElementById('additive'),
+      burst: document.getElementById('burst'),
+      clear: document.getElementById('clear'),
+      pause: document.getElementById('pause'),
+      statCount: document.getElementById('statCount'),
+      statFPS: document.getElementById('statFPS'),
+      statX: document.getElementById('statX'),
+      statY: document.getElementById('statY'),
+      countLabel: document.getElementById('countLabel'),
+      speedLabel: document.getElementById('speedLabel'),
+      sizeLabel: document.getElementById('sizeLabel'),
+      glowLabel: document.getElementById('glowLabel'),
+      chipCount: document.getElementById('chipCount'),
+      modeText: document.getElementById('modeText')
+    };
 
-    function drawBarChart() {
-      const barWidth = 100;
-      const gap = 50;
-      const maxVal = Math.max(...data);
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.font = '16px Arial';
-      ctx.textAlign = 'center';
-
-      data.forEach((value, i) => {
-        const x = 100 + i * (barWidth + gap);
-        const height = (value / maxVal) * 250;
-        const y = canvas.height - height - 30;
-
-        ctx.fillStyle = colors[i];
-        ctx.fillRect(x, y, barWidth, height);
-
-        ctx.fillStyle = '#333';
-        ctx.fillText(labels[i], x + barWidth / 2, canvas.height - 10);
-        ctx.fillText(value + 'K', x + barWidth / 2, y - 10);
+    // resize canvases to fit view
+    function resize() {
+      const rect = view.getBoundingClientRect();
+      [cTrails, cMain, cGlow].forEach(c => {
+        c.width = Math.round(rect.width);
+        c.height = Math.round(rect.height);
       });
     }
+    window.addEventListener('resize', resize);
+    resize();
 
-    drawBarChart();
+    // Particle system
+    let particles = [];
+    let paused = false;
+    let lastTime = performance.now();
+    let fpsCounter = {last: performance.now(), frames:0, fps:0};
 
-    canvas.addEventListener('mousemove', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+    // Mouse
+    const mouse = {x:0,y:0,down:false}
+    view.addEventListener('mousemove', e => {
+      const r = view.getBoundingClientRect();
+      mouse.x = e.clientX - r.left;
+      mouse.y = e.clientY - r.top;
+    });
+    view.addEventListener('mousedown', e => { mouse.down = true; spawnBurst(mouse.x, mouse.y, 18); });
+    view.addEventListener('mouseup', e => { mouse.down = false; });
+    view.addEventListener('mouseleave', e => { mouse.down = false; });
 
-      data.forEach((value, i) => {
-        const barX = 100 + i * 150;
-        const barWidth = 100;
-        const maxVal = Math.max(...data);
-        const height = (value / maxVal) * 250;
-        const barY = canvas.height - height - 30;
+    // Utility
+    function rand(min, max){ return Math.random()*(max-min)+min }
+    function lerp(a,b,t){ return a + (b-a)*t }
 
-        if (x > barX && x < barX + barWidth && y > barY && y < canvas.height - 30) {
-          canvas.style.cursor = 'pointer';
-        } else {
-          canvas.style.cursor = 'default';
-        }
+    // Initialize particles
+    function createParticle(x,y,opts={}){
+      const size = (parseFloat(ui.size.value)||3) * (opts.sizeMul||1);
+      const angle = rand(0,Math.PI*2);
+      const speed = (rand(0.2,1.2) * (parseFloat(ui.speed.value)||1)) * (opts.speedMul||1);
+      const colorPick = opts.color || pickColor();
+      return {
+        x: x !== undefined ? x : rand(0,cMain.width),
+        y: y !== undefined ? y : rand(0,cMain.height),
+        vx: Math.cos(angle)*speed,
+        vy: Math.sin(angle)*speed,
+        life: 1.0,
+        decay: rand(0.002, 0.01) * (opts.decayMul||1),
+        size,
+        color: colorPick,
+        glow: (parseFloat(ui.glow.value)||0.6) * (opts.glowMul||1)
+      }
+    }
+
+    function pickColor(){
+      const c0 = ui.color0.value;
+      const c1 = ui.color1.value;
+      const c2 = ui.color2.value;
+      const r = Math.random();
+      if(r<0.5) return lerpColor(c0,c1,Math.random());
+      if(r<0.9) return lerpColor(c1,c2,Math.random());
+      return lerpColor(c2,c0,Math.random());
+    }
+
+    function lerpColor(a,b,t){
+      // a,b like #rrggbb
+      const ar = parseInt(a.substr(1,2),16), ag = parseInt(a.substr(3,2),16), ab = parseInt(a.substr(5,2),16);
+      const br = parseInt(b.substr(1,2),16), bg = parseInt(b.substr(3,2),16), bb = parseInt(b.substr(5,2),16);
+      const rr = Math.round(lerp(ar,br,t));
+      const rg = Math.round(lerp(ag,bg,t));
+      const rb = Math.round(lerp(ab,bb,t));
+      return `rgb(${rr},${rg},${rb})`;
+    }
+
+    function spawnBurst(x,y,count=24){
+      for(let i=0;i<count;i++){
+        particles.push(createParticle(x + rand(-6,6), y + rand(-6,6), {speedMul: rand(0.8,2.5), sizeMul: rand(0.6,2.2), decayMul: rand(0.6,1.6)}));
+      }
+    }
+
+    function populate(n){
+      particles = [];
+      for(let i=0;i<n;i++) particles.push(createParticle());
+    }
+
+    // Controls
+    ui.count.addEventListener('input', ()=>{ ui.countLabel.textContent = ui.count.value; adjustCount(); });
+    ui.speed.addEventListener('input', ()=>{ ui.speedLabel.textContent = parseFloat(ui.speed.value).toFixed(2); });
+    ui.size.addEventListener('input', ()=>{ ui.sizeLabel.textContent = parseFloat(ui.size.value).toFixed(2); });
+    ui.glow.addEventListener('input', ()=>{ ui.glowLabel.textContent = parseFloat(ui.glow.value).toFixed(2); });
+    ui.preset.addEventListener('click', ()=>{ ui.color0.value = randomHex(); ui.color1.value = randomHex(); ui.color2.value = randomHex(); });
+    ui.burst.addEventListener('click', ()=>{ spawnBurst(cMain.width/2, cMain.height/2, 120); });
+    ui.clear.addEventListener('click', ()=>{ particles = []; clearCanvas(); });
+    ui.pause.addEventListener('click', ()=>{ paused = !paused; ui.pause.textContent = paused ? 'Resume' : 'Pause'; ui.modeText.textContent = paused ? 'Paused' : 'Live'; });
+
+    function randomHex(){ return '#'+Math.floor(Math.random()*16777215).toString(16).padStart(6,'0'); }
+
+    function adjustCount(){
+      const target = parseInt(ui.count.value);
+      const diff = target - particles.length;
+      if(diff>0){ for(let i=0;i<diff;i++) particles.push(createParticle()); }
+      else if(diff<0) particles.splice(diff);
+    }
+
+    // drawing
+    function clearCanvas(){
+      [ctxTrails,ctxMain,ctxGlow].forEach((c)=>{
+        c.setTransform(1,0,0,1,0,0);
+        c.clearRect(0,0,c.canvas.width,c.canvas.height);
       });
+    }
+
+    function step(t){
+      const now = performance.now();
+      const dt = Math.min((now - lastTime)/16.666, 4); // relative to 60fps
+      lastTime = now;
+
+      // fps
+      fpsCounter.frames++;
+      if(now - fpsCounter.last >= 1000){ fpsCounter.fps = fpsCounter.frames; fpsCounter.frames=0; fpsCounter.last = now; ui.statFPS.textContent = fpsCounter.fps; }
+
+      if(!paused){
+        updateParticles(dt);
+        render();
+      }
+
+      ui.statCount.textContent = particles.length;
+      ui.chipCount.textContent = particles.length;
+      ui.statX.textContent = Math.round(mouse.x);
+      ui.statY.textContent = Math.round(mouse.y);
+
+      requestAnimationFrame(step);
+    }
+
+    function updateParticles(dt){
+      const attract = ui.attract.checked;
+      for(let i=particles.length-1;i>=0;i--){
+        const p = particles[i];
+        // mouse interaction
+        if(attract){
+          const dx = mouse.x - p.x, dy = mouse.y - p.y;
+          const dist = Math.sqrt(dx*dx+dy*dy)+0.001;
+          const force = Math.min(120/dist, 0.6);
+          p.vx += dx/dist * force * 0.04 * dt;
+          p.vy += dy/dist * force * 0.04 * dt;
+        } else if(mouse.down){
+          // repel when dragging while attract off
+          const dx = p.x - mouse.x, dy = p.y - mouse.y;
+          const dist = Math.sqrt(dx*dx+dy*dy)+0.001;
+          const force = Math.min(120/dist, 0.8);
+          p.vx += dx/dist * force * 0.05 * dt;
+          p.vy += dy/dist * force * 0.05 * dt;
+        }
+
+        // velocity damping
+        p.vx *= 0.995;
+        p.vy *= 0.995;
+
+        // integrate
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+
+        // wrap edges
+        if(p.x < -20) p.x = cMain.width + 20;
+        if(p.x > cMain.width + 20) p.x = -20;
+        if(p.y < -20) p.y = cMain.height + 20;
+        if(p.y > cMain.height + 20) p.y = -20;
+
+        // life
+        p.life -= p.decay * dt;
+        if(p.life <= 0.02) particles.splice(i,1);
+      }
+
+      // spawn passive particles to maintain density
+      const desired = parseInt(ui.count.value);
+      if(particles.length < desired){
+        const missing = Math.min(desired - particles.length, Math.ceil(desired*0.02));
+        for(let i=0;i<missing;i++) particles.push(createParticle());
+      }
+    }
+
+    function render(){
+      // trails canvas - fade slightly to create trail effect
+      if(ui.trails.checked){
+        ctxTrails.globalCompositeOperation = 'source-over';
+        ctxTrails.fillStyle = 'rgba(2,6,23,0.12)';
+        ctxTrails.fillRect(0,0,cTrails.width,cTrails.height);
+      } else {
+        ctxTrails.clearRect(0,0,cTrails.width,cTrails.height);
+      }
+
+      // main particles
+      ctxMain.clearRect(0,0,cMain.width,cMain.height);
+      ctxMain.globalCompositeOperation = ui.additive.checked ? 'lighter' : 'source-over';
+
+      for(const p of particles){
+        const alpha = Math.max(0, Math.min(1,p.life));
+        // main core
+        ctxMain.beginPath();
+        ctxMain.fillStyle = `rgba(${rgbOf(p.color)},${alpha})`;
+        ctxMain.arc(p.x, p.y, p.size, 0, Math.PI*2);
+        ctxMain.fill();
+
+        // draw to trails (soft)
+        ctxTrails.beginPath();
+        ctxTrails.fillStyle = `rgba(${rgbOf(p.color)},${alpha*0.15})`;
+        ctxTrails.arc(p.x, p.y, p.size*2, 0, Math.PI*2);
+        ctxTrails.fill();
+      }
+
+      // glow pass - blurred, multiplied
+      ctxGlow.clearRect(0,0,cGlow.width,cGlow.height);
+      ctxGlow.globalCompositeOperation = 'lighter';
+      for(const p of particles){
+        const g = Math.min(1, p.glow * (parseFloat(ui.glow.value)||0.6));
+        const grd = ctxGlow.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size*8);
+        const rgb = rgbOf(p.color);
+        grd.addColorStop(0, `rgba(${rgb},${(0.5*g).toFixed(3)})`);
+        grd.addColorStop(0.4, `rgba(${rgb},${(0.12*g).toFixed(3)})`);
+        grd.addColorStop(1, 'rgba(0,0,0,0)');
+        ctxGlow.fillStyle = grd;
+        ctxGlow.beginPath();
+        ctxGlow.arc(p.x, p.y, p.size*8, 0, Math.PI*2);
+        ctxGlow.fill();
+      }
+
+      // final composite: we already rendered separately on stacked canvases. Add subtle vignette on main
+      // optionally apply small blur on glow canvas using canvas filter if supported
+      try{
+        ctxGlow.filter = 'blur(12px)';
+        const img = ctxGlow.getImageData(0,0,cGlow.width,cGlow.height);
+        ctxGlow.putImageData(img,0,0);
+        ctxGlow.filter = 'none';
+      }catch(e){ /* some browsers don't allow getImageData with filters; ignore */ }
+    }
+
+    function rgbOf(css){
+      // css can be rgb(r,g,b) or #rrggbb; convert to r,g,b
+      if(css.startsWith('rgb')) return css.replace(/[rgba() ]/g,'').split(',').slice(0,3).join(',');
+      const r = parseInt(css.substr(1,2),16);
+      const g = parseInt(css.substr(3,2),16);
+      const b = parseInt(css.substr(5,2),16);
+      return `${r},${g},${b}`;
+    }
+
+    // initialize
+    populate(parseInt(ui.count.value));
+    adjustCount();
+
+    // animate loop
+    requestAnimationFrame(step);
+
+    // spawn on drag
+    let dragTimer = null;
+    view.addEventListener('mousemove', ()=>{ if(mouse.down){ spawnBurst(mouse.x, mouse.y, 4); } });
+
+    // make canvases match pixel ratio for crispness
+    function fixDPR(){
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      [cTrails,cMain,cGlow].forEach(c => {
+        const w = c.clientWidth, h = c.clientHeight;
+        c.width = Math.round(w * dpr);
+        c.height = Math.round(h * dpr);
+        c.style.width = w + 'px';
+        c.style.height = h + 'px';
+        const ctx = c.getContext('2d');
+        ctx.setTransform(dpr,0,0,dpr,0,0);
+      });
+    }
+    // call fixDPR after layout
+    setTimeout(()=>{ resize(); fixDPR(); }, 50);
+    window.addEventListener('resize', ()=>{ resize(); fixDPR(); });
+
+    // helper to ensure both resize and DPR
+    function resize(){
+      const r = view.getBoundingClientRect();
+      [cTrails,cMain,cGlow].forEach(c => { c.style.width = r.width + 'px'; c.style.height = r.height + 'px'; });
+    }
+
+    // expose simple keyboard shortcuts
+    window.addEventListener('keydown', (e)=>{
+      if(e.key === 'b') spawnBurst(cMain.width/2, cMain.height/2, 100);
+      if(e.key === 'c') { particles = []; }
+      if(e.key === ' ') { paused = !paused; ui.pause.textContent = paused ? 'Resume' : 'Pause'; ui.modeText.textContent = paused ? 'Paused' : 'Live'; }
     });
 
-    canvas.addEventListener('click', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+    // initial labels
+    ui.countLabel.textContent = ui.count.value;
+    ui.speedLabel.textContent = parseFloat(ui.speed.value).toFixed(2);
+    ui.sizeLabel.textContent = parseFloat(ui.size.value).toFixed(2);
+    ui.glowLabel.textContent = parseFloat(ui.glow.value).toFixed(2);
 
-      data.forEach((value, i) => {
-        const barX = 100 + i * 150;
-        const barWidth = 100;
-        const maxVal = Math.max(...data);
-        const height = (value / maxVal) * 250;
-        const barY = canvas.height - height - 30;
+    // ensure count sync
+    adjustCount();
 
-        if (x > barX && x < barX + barWidth && y > barY && y < canvas.height - 30) {
-          alert(`${labels[i]} Traffic: ${value}K Visitors`);
-        }
-      });
-    });
+    // small animation: subtle background pulse using glow canvas overlay
+    let pulse = 0;
+    setInterval(()=>{
+      pulse += 0.03;
+      const s = 0.98 + Math.sin(pulse)*0.02;
+      view.style.transform = `scale(${s})`;
+    }, 1000/30);
+
   </script>
 </body>
 </html>
