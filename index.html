@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive 2D Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #f0f4ff, #ffffff);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    header {
+      background: #4f46e5;
+      color: white;
+      width: 100%;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      width: 90%;
+      margin-top: 20px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      text-align: center;
+    }
+    .card:hover {
+      transform: translateY(-10px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+    canvas {
+      border-radius: 15px;
+      background: #e0f7ff;
+      display: block;
+      margin: 20px auto;
+    }
+    footer {
+      margin-top: auto;
+      background: #4f46e5;
+      color: white;
+      width: 100%;
+      text-align: center;
+      padding: 10px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>Interactive 2D Dashboard</header>
+  <section class="dashboard">
+    <div class="card" onclick="alert('Revenue Card Clicked!')">💰 Revenue: $120K</div>
+    <div class="card" onclick="alert('Users Card Clicked!')">👥 Active Users: 3.2K</div>
+    <div class="card" onclick="alert('Orders Card Clicked!')">📦 Orders: 450</div>
+    <div class="card" onclick="alert('Conversion Card Clicked!')">📈 Conversion: 2.5%</div>
+  </section>
+
+  <canvas id="animationCanvas" width="800" height="300"></canvas>
+
+  <footer>© 2025 Interactive Dashboard</footer>
+
+  <script>
+    const canvas = document.getElementById('animationCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    let particles = [];
+    for (let i = 0; i < 50; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 5 + 2,
+        dx: (Math.random() - 0.5) * 2,
+        dy: (Math.random() - 0.5) * 2,
+        color: `hsl(${Math.random()*360}, 70%, 60%)`
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+        p.x += p.dx;
+        p.y += p.dy;
+
+        if(p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if(p.y < 0 || p.y > canvas.height) p.dy *= -1;
+      });
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    canvas.addEventListener('click', e => {
+      particles.push({
+        x: e.offsetX,
+        y: e.offsetY,
+        radius: Math.random() * 5 + 2,
+        dx: (Math.random() - 0.5) * 2,
+        dy: (Math.random() - 0.5) * 2,
+        color: `hsl(${Math.random()*360}, 70%, 60%)`
+      });
+    });
+  </script>
+</body>
+</html>
