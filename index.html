@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive 2D Dashboard</title>
+  <title>Digital Marketing Dashboard</title>
   <style>
     * {
       margin: 0;
@@ -12,17 +12,15 @@
     }
     body {
       font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #f0f4ff, #ffffff);
+      background: linear-gradient(to bottom, #f3f4f6, #ffffff);
       color: #333;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
       min-height: 100vh;
-      overflow-x: hidden;
     }
     header {
-      background: #4f46e5;
+      background: #2563eb;
       color: white;
       width: 100%;
       padding: 1rem;
@@ -35,7 +33,7 @@
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px;
       width: 90%;
-      margin-top: 20px;
+      margin: 20px auto;
     }
     .card {
       background: white;
@@ -43,84 +41,118 @@
       border-radius: 15px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-      cursor: pointer;
       text-align: center;
+      cursor: pointer;
     }
     .card:hover {
-      transform: translateY(-10px) scale(1.05);
+      transform: translateY(-8px) scale(1.03);
       box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     }
     canvas {
+      background: #eef6ff;
       border-radius: 15px;
-      background: #e0f7ff;
       display: block;
       margin: 20px auto;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     footer {
-      margin-top: auto;
-      background: #4f46e5;
+      background: #2563eb;
       color: white;
-      width: 100%;
       text-align: center;
+      width: 100%;
       padding: 10px;
+      margin-top: auto;
       font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
-  <header>Interactive 2D Dashboard</header>
+  <header>Digital Marketing Dashboard</header>
+
   <section class="dashboard">
-    <div class="card" onclick="alert('Revenue Card Clicked!')">💰 Revenue: $120K</div>
-    <div class="card" onclick="alert('Users Card Clicked!')">👥 Active Users: 3.2K</div>
-    <div class="card" onclick="alert('Orders Card Clicked!')">📦 Orders: 450</div>
-    <div class="card" onclick="alert('Conversion Card Clicked!')">📈 Conversion: 2.5%</div>
+    <div class="card" onclick="showDetails('Traffic Sources: Organic, Paid, Social')">📊 Traffic: 45K Visitors</div>
+    <div class="card" onclick="showDetails('Conversions: Leads and Purchases')">💼 Conversions: 1.2K</div>
+    <div class="card" onclick="showDetails('Ad Campaign Performance')">📢 Ads: $8K Spent</div>
+    <div class="card" onclick="showDetails('Social Media Engagement Rates')">👍 Social: 3.5K Likes</div>
   </section>
 
-  <canvas id="animationCanvas" width="800" height="300"></canvas>
+  <canvas id="chartCanvas" width="800" height="400"></canvas>
 
-  <footer>© 2025 Interactive Dashboard</footer>
+  <footer>© 2025 Digital Marketing Dashboard</footer>
 
   <script>
-    const canvas = document.getElementById('animationCanvas');
+    // Show details popup
+    function showDetails(message) {
+      alert(message);
+    }
+
+    const canvas = document.getElementById('chartCanvas');
     const ctx = canvas.getContext('2d');
-    
-    let particles = [];
-    for (let i = 0; i < 50; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 5 + 2,
-        dx: (Math.random() - 0.5) * 2,
-        dy: (Math.random() - 0.5) * 2,
-        color: `hsl(${Math.random()*360}, 70%, 60%)`
-      });
-    }
 
-    function draw() {
+    const data = [45, 30, 20, 15];
+    const labels = ['Organic', 'Paid Ads', 'Social', 'Referral'];
+    const colors = ['#3b82f6', '#f97316', '#10b981', '#eab308'];
+
+    function drawBarChart() {
+      const barWidth = 100;
+      const gap = 50;
+      const maxVal = Math.max(...data);
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.fill();
-        p.x += p.dx;
-        p.y += p.dy;
+      ctx.font = '16px Arial';
+      ctx.textAlign = 'center';
 
-        if(p.x < 0 || p.x > canvas.width) p.dx *= -1;
-        if(p.y < 0 || p.y > canvas.height) p.dy *= -1;
+      data.forEach((value, i) => {
+        const x = 100 + i * (barWidth + gap);
+        const height = (value / maxVal) * 250;
+        const y = canvas.height - height - 30;
+
+        ctx.fillStyle = colors[i];
+        ctx.fillRect(x, y, barWidth, height);
+
+        ctx.fillStyle = '#333';
+        ctx.fillText(labels[i], x + barWidth / 2, canvas.height - 10);
+        ctx.fillText(value + 'K', x + barWidth / 2, y - 10);
       });
-      requestAnimationFrame(draw);
     }
-    draw();
 
-    canvas.addEventListener('click', e => {
-      particles.push({
-        x: e.offsetX,
-        y: e.offsetY,
-        radius: Math.random() * 5 + 2,
-        dx: (Math.random() - 0.5) * 2,
-        dy: (Math.random() - 0.5) * 2,
-        color: `hsl(${Math.random()*360}, 70%, 60%)`
+    drawBarChart();
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      data.forEach((value, i) => {
+        const barX = 100 + i * 150;
+        const barWidth = 100;
+        const maxVal = Math.max(...data);
+        const height = (value / maxVal) * 250;
+        const barY = canvas.height - height - 30;
+
+        if (x > barX && x < barX + barWidth && y > barY && y < canvas.height - 30) {
+          canvas.style.cursor = 'pointer';
+        } else {
+          canvas.style.cursor = 'default';
+        }
+      });
+    });
+
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      data.forEach((value, i) => {
+        const barX = 100 + i * 150;
+        const barWidth = 100;
+        const maxVal = Math.max(...data);
+        const height = (value / maxVal) * 250;
+        const barY = canvas.height - height - 30;
+
+        if (x > barX && x < barX + barWidth && y > barY && y < canvas.height - 30) {
+          alert(`${labels[i]} Traffic: ${value}K Visitors`);
+        }
       });
     });
   </script>
